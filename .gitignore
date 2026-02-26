@@ -1,0 +1,17 @@
+# Build folders
+cmake-build-*/
+build/
+
+# CLion
+.idea/
+
+# Executables
+*.exe
+*.out
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
