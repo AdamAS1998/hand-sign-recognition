@@ -6,8 +6,19 @@
 #define HAND_SIGN_CAMERA_H
 
 
-class Camera {
+#pragma once
+#include <opencv2/opencv.hpp>
 
+/**
+ * camera class that opens camera, grab frame and returns it
+ */
+class Camera {
+public:
+    bool open(int index);
+    cv::Mat getFrame();
+
+private:
+    cv::VideoCapture cap;
 };
 
 
