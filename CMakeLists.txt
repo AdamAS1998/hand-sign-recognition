@@ -7,7 +7,6 @@ find_package(OpenCV REQUIRED)
 
 add_executable(Hand_Sign
         main.cpp
-        src/camera/Camera.cpp
         src/calibration/CalibrationManager.cpp
         src/machineLearning/Classifier.cpp
         src/machineLearning/KNNClassifier.cpp
@@ -16,6 +15,10 @@ add_executable(Hand_Sign
         src/text/TextBuffer.cpp
         src/tracking/HandTracker.cpp
         src/tracking/Landmark.cpp
+        src/network/TCPServer.cpp
+        include/network/TCPServer.h
+        src/processing/Point.cpp
+        include/processing/Point.h
 )
 
 target_include_directories(Hand_Sign PRIVATE include)

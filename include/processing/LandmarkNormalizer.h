@@ -6,8 +6,13 @@
 #define HAND_SIGN_LANDMARKNORMALIZER_H
 
 
-class LandmarkNormalizer {
+#pragma once
+#include <vector>
+#include "Point.h"
 
+class LandmarkNormalizer {
+public:
+    static void normalize(std::vector<Point>& landmarks);
 };
 
 
