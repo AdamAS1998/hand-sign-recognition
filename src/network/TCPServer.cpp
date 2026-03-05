@@ -61,7 +61,6 @@ bool TCPServer::start() {
                 if (j.size() == 63) {
 
                     std::vector<Point> landmarks(21);
-
                     for (int i = 0; i < 21; i++) {
                         landmarks[i].x = j[i * 3 + 0];
                         landmarks[i].y = j[i * 3 + 1];
@@ -69,23 +68,38 @@ bool TCPServer::start() {
                     }
 
                     LandmarkNormalizer::normalize(landmarks);
+                    std::vector<float> features = FeatureExtractor::extract(landmarks);
 
-                    float indexBend  = FeatureExtractor::fingerBend(landmarks, 5, 6, 8);
-                    float middleBend = FeatureExtractor::fingerBend(landmarks, 9, 10, 12);
-                    float ringBend   = FeatureExtractor::fingerBend(landmarks, 13, 14, 16);
-                    float pinkyBend  = FeatureExtractor::fingerBend(landmarks, 17, 18, 20);
+                    static int frameCounter = 0;
+                    frameCounter++;
 
-                    float spread1 = FeatureExtractor::fingerSpread(landmarks, 8, 12);
-                    float spread2 = FeatureExtractor::fingerSpread(landmarks, 12, 16);
-                    float spread3 = FeatureExtractor::fingerSpread(landmarks, 16, 20);
+                    if (frameCounter % 30 == 0)
+                    {
+                        std::cout << "\n---- Features ----\n";
 
-                    float indexDist  = FeatureExtractor::wristTipDistance(landmarks, 8);
-                    float middleDist = FeatureExtractor::wristTipDistance(landmarks, 12);
+                        std::cout << "thumbDistance:      " << features[0] << "\n";
+                        std::cout << "thumbIndexDistance: " << features[1] << "\n";
 
-                    std::cout << "Index  bend: " << indexBend  << std::endl;
-                    //std::cout << "Middle bend: " << middleBend << std::endl;
-                    //std::cout << "Ring   bend: " << ringBend   << std::endl;
-                    //std::cout << "Pinky  bend: " << pinkyBend  << std::endl;
+                        std::cout << "indexBend:  " << features[2] << "\n";
+                        std::cout << "middleBend: " << features[3] << "\n";
+                        std::cout << "ringBend:   " << features[4] << "\n";
+                        std::cout << "pinkyBend:  " << features[5] << "\n";
+                        std::cout << "thumbBend:  " << features[6] << "\n";
+
+                        std::cout << "spreadIM: " << features[7] << "\n";
+                        std::cout << "spreadMR: " << features[8] << "\n";
+                        std::cout << "spreadRP: " << features[9] << "\n";
+
+                        std::cout << "indexWristDist:  " << features[10] << "\n";
+                        std::cout << "middleWristDist: " << features[11] << "\n";
+
+                        std::cout << "palmZ: " << features[12] << "\n";
+                        std::cout << "palmY: " << features[13] << "\n";
+                        std::cout << "palmX: " << features[14] << "\n";
+
+                        std::cout << "------------------\n";
+                    }
+
                 }
 
             } catch (const std::exception& e) {

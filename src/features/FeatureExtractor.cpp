@@ -52,17 +52,7 @@ float FeatureExtractor::wristTipDistance(
     return (landmarks[tip] - landmarks[0]).length();
 }
 
-float FeatureExtractor::palmOrientationZ(
-    const std::vector<Point>& landmarks)
-{
-    Point v1 = landmarks[5] - landmarks[0];
-    Point v2 = landmarks[17] - landmarks[0];
 
-
-    Point normal = v1.cross(v2);
-
-    return normal.z;
-}
 
 std::vector<float> FeatureExtractor::extract(
     const std::vector<Point>& landmarks)
@@ -80,6 +70,7 @@ std::vector<float> FeatureExtractor::extract(
     features.push_back(fingerBend(landmarks, 9, 10, 12)); // middle
     features.push_back(fingerBend(landmarks, 13, 14, 16));// ring
     features.push_back(fingerBend(landmarks, 17, 18, 20));// pinky
+    features.push_back(fingerBend(landmarks, 2, 3, 4)); // thumb
 
     // Finger spreads
     features.push_back((landmarks[8]  - landmarks[12]).length()); // IM
@@ -90,8 +81,13 @@ std::vector<float> FeatureExtractor::extract(
     features.push_back((landmarks[8]  - landmarks[0]).length()); // index-wrist
     features.push_back((landmarks[12] - landmarks[0]).length()); // middle-wrist
 
-    // Palm orientation
-    features.push_back(palmOrientationZ(landmarks));
+    Point normal = (landmarks[5] - landmarks[0]).cross(landmarks[17] - landmarks[0]);
+
+    // Palm orientations
+    features.push_back(normal.z);
+    features.push_back(normal.y);
+    features.push_back(normal.x);
+
 
     return features;
 }

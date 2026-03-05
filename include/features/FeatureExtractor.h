@@ -33,9 +33,8 @@ public:
         int tip
     );
 
-    float palmOrientationZ(const std::vector<Point>& landmarks);
 
-    std::vector<float> extract(const std::vector<Point>& landmarks);
+    static std::vector<float> extract(const std::vector<Point>& landmarks);
 };
 
 
