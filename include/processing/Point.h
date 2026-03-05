@@ -25,6 +25,22 @@ struct Point {
     float length() const {
         return std::sqrt(x*x + y*y + z*z);
     }
+
+    float dot(const Point& other) const {
+        return x * other.x + y * other.y + z * other.z;
+    }
+
+    Point operator+(const Point& other) const {
+        return {x + other.x, y + other.y, z + other.z};
+    }
+
+    Point cross(const Point& other) const {
+        return {
+            y*other.z - z*other.y,
+            z*other.x - x*other.z,
+            x*other.y - y*other.x
+        };
+    }
 };
 
 

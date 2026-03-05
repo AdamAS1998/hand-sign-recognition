@@ -8,6 +8,8 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iostream>
+
+#include "features/FeatureExtractor.h"
 #include "json/json.hpp"
 using json = nlohmann::json;
 
@@ -68,11 +70,22 @@ bool TCPServer::start() {
 
                     LandmarkNormalizer::normalize(landmarks);
 
-                    // DEBUG PRINT AFTER NORMALIZATION
-                    std::cout << "Index tip after normalize: "
-                              << landmarks[8].x << ", "
-                              << landmarks[8].y << ", "
-                              << landmarks[8].z << "\n";
+                    float indexBend  = FeatureExtractor::fingerBend(landmarks, 5, 6, 8);
+                    float middleBend = FeatureExtractor::fingerBend(landmarks, 9, 10, 12);
+                    float ringBend   = FeatureExtractor::fingerBend(landmarks, 13, 14, 16);
+                    float pinkyBend  = FeatureExtractor::fingerBend(landmarks, 17, 18, 20);
+
+                    float spread1 = FeatureExtractor::fingerSpread(landmarks, 8, 12);
+                    float spread2 = FeatureExtractor::fingerSpread(landmarks, 12, 16);
+                    float spread3 = FeatureExtractor::fingerSpread(landmarks, 16, 20);
+
+                    float indexDist  = FeatureExtractor::wristTipDistance(landmarks, 8);
+                    float middleDist = FeatureExtractor::wristTipDistance(landmarks, 12);
+
+                    std::cout << "Index  bend: " << indexBend  << std::endl;
+                    //std::cout << "Middle bend: " << middleBend << std::endl;
+                    //std::cout << "Ring   bend: " << ringBend   << std::endl;
+                    //std::cout << "Pinky  bend: " << pinkyBend  << std::endl;
                 }
 
             } catch (const std::exception& e) {

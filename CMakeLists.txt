@@ -20,6 +20,8 @@ add_executable(Hand_Sign
         src/processing/Point.cpp
         include/processing/Point.h
         include/json/json.hpp
+        src/features/FeatureExtractor.cpp
+        include/features/FeatureExtractor.h
 )
 
 target_include_directories(Hand_Sign PRIVATE include)
