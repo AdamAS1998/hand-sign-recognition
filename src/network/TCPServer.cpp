@@ -5,19 +5,22 @@
 #include "../../include/network/TCPServer.h"
 #include "../../include/processing/Point.h"
 #include "../../include/processing/LandmarkNormalizer.h"
+
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iostream>
 
 #include "features/FeatureExtractor.h"
 #include "json/json.hpp"
+
 using json = nlohmann::json;
 
 #pragma comment(lib, "Ws2_32.lib")
 
 TCPServer::TCPServer(int port) : port(port) {}
 
-bool TCPServer::start() {
+bool TCPServer::start()
+{
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2,2), &wsaData);
 
@@ -33,84 +36,84 @@ bool TCPServer::start() {
 
     std::cout << "Waiting for Python connection...\n";
 
-    SOCKET clientSocket = accept(serverSocket, NULL, NULL);
+    clientSocket = accept(serverSocket, NULL, NULL);
+
+    closesocket(serverSocket);
+
+    if(clientSocket == INVALID_SOCKET)
+    {
+        std::cout << "Accept failed\n";
+        return false;
+    }
 
     std::cout << "Python connected.\n";
 
-    std::string accumulator;
+    return true;
+}
+
+std::vector<double> TCPServer::receiveVector()
+{
+    static std::string accumulator;
     char buffer[4096];
 
-    while (true) {
-        int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
+    while(true)
+    {
+        size_t pos = accumulator.find('\n');
 
-        if (bytesReceived <= 0)
-            break;
+        if(pos != std::string::npos)
+        {
+            std::string line = accumulator.substr(0,pos);
+            accumulator.erase(0,pos+1);
+
+            try
+            {
+                json j = json::parse(line);
+
+                if(j.size() != 63)
+                    continue;
+
+                std::vector<Point> landmarks(21);
+
+                for(int i = 0; i < 21; i++)
+                {
+                    landmarks[i].x = j[i*3+0];
+                    landmarks[i].y = j[i*3+1];
+                    landmarks[i].z = j[i*3+2];
+                }
+
+                LandmarkNormalizer::normalize(landmarks);
+
+                std::vector<float> features =
+                        FeatureExtractor::extract(landmarks);
+
+                return std::vector<double>(features.begin(), features.end());
+            }
+            catch(...)
+            {
+                continue;
+            }
+        }
+
+        int bytesReceived = recv(clientSocket, buffer, sizeof(buffer)-1, 0);
+
+        if(bytesReceived == 0)
+        {
+            std::cout << "Python disconnected\n";
+            return {};
+        }
+
+        if(bytesReceived < 0)
+        {
+            continue;
+        }
 
         buffer[bytesReceived] = '\0';
         accumulator += buffer;
-
-        size_t pos;
-        while ((pos = accumulator.find('\n')) != std::string::npos) {
-
-            std::string line = accumulator.substr(0, pos);
-            accumulator.erase(0, pos + 1);
-
-            try {
-                json j = json::parse(line);
-
-                if (j.size() == 63) {
-
-                    std::vector<Point> landmarks(21);
-                    for (int i = 0; i < 21; i++) {
-                        landmarks[i].x = j[i * 3 + 0];
-                        landmarks[i].y = j[i * 3 + 1];
-                        landmarks[i].z = j[i * 3 + 2];
-                    }
-
-                    LandmarkNormalizer::normalize(landmarks);
-                    std::vector<float> features = FeatureExtractor::extract(landmarks);
-
-                    static int frameCounter = 0;
-                    frameCounter++;
-
-                    if (frameCounter % 30 == 0)
-                    {
-                        std::cout << "\n---- Features ----\n";
-
-                        std::cout << "thumbDistance:      " << features[0] << "\n";
-                        std::cout << "thumbIndexDistance: " << features[1] << "\n";
-
-                        std::cout << "indexBend:  " << features[2] << "\n";
-                        std::cout << "middleBend: " << features[3] << "\n";
-                        std::cout << "ringBend:   " << features[4] << "\n";
-                        std::cout << "pinkyBend:  " << features[5] << "\n";
-                        std::cout << "thumbBend:  " << features[6] << "\n";
-
-                        std::cout << "spreadIM: " << features[7] << "\n";
-                        std::cout << "spreadMR: " << features[8] << "\n";
-                        std::cout << "spreadRP: " << features[9] << "\n";
-
-                        std::cout << "indexWristDist:  " << features[10] << "\n";
-                        std::cout << "middleWristDist: " << features[11] << "\n";
-
-                        std::cout << "palmZ: " << features[12] << "\n";
-                        std::cout << "palmY: " << features[13] << "\n";
-                        std::cout << "palmX: " << features[14] << "\n";
-
-                        std::cout << "------------------\n";
-                    }
-
-                }
-
-            } catch (const std::exception& e) {
-                std::cout << "JSON parse error: " << e.what() << "\n";
-            }
-        }
     }
+}
 
+void TCPServer::stop()
+{
     closesocket(clientSocket);
-    closesocket(serverSocket);
     WSACleanup();
-
-    return true;
 }

@@ -8,14 +8,17 @@
 
 #pragma once
 #include <vector>
+#include <winsock2.h>
 
 class TCPServer {
 public:
     TCPServer(int port);
     bool start();
     std::vector<double> receiveVector();
+    void stop();
 private:
     int port;
+    SOCKET clientSocket;
 };
 
 #endif //HAND_SIGN_TCPSERVER_H
