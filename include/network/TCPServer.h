@@ -7,6 +7,7 @@
 
 
 #pragma once
+#include <string>
 #include <vector>
 #include <winsock2.h>
 
@@ -16,6 +17,7 @@ public:
     bool start();
     std::vector<double> receiveVector();
     void stop();
+    std::string receiveSign();
 private:
     int port;
     SOCKET clientSocket;

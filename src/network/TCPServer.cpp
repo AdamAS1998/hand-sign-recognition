@@ -117,3 +117,39 @@ void TCPServer::stop()
     closesocket(clientSocket);
     WSACleanup();
 }
+
+std::string TCPServer::receiveSign()
+{
+    static std::string accumulator;
+    char buffer[256];
+
+    while(true)
+    {
+        size_t pos = accumulator.find('\n');
+
+        if(pos != std::string::npos)
+        {
+            std::string line = accumulator.substr(0, pos);
+            accumulator.erase(0, pos + 1);
+
+            return line;
+        }
+
+        int bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
+
+        if(bytesReceived == 0)
+        {
+            std::cout << "Python disconnected\n";
+            return "";
+        }
+
+        if(bytesReceived < 0)
+        {
+            continue;
+        }
+
+        buffer[bytesReceived] = '\0';
+        accumulator += buffer;
+    }
+}
+
