@@ -1,17 +1,77 @@
-# Build folders
+# ==========================================
+# Hand Sign Recognition - .gitignore
+# ==========================================
+
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+htmlcov/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Legacy C++ / CMake
 cmake-build-*/
 build/
-
-# CLion
-.idea/
-
-# Executables
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+*.o
+*.obj
 *.exe
 *.out
+*.dll
+*.so
+*.a
+*.lib
+
+# Local datasets
+data/
+datasets/
+
+# Trained ML models
+models/
+checkpoints/
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.onnx
+*.h5
+*.keras
+*.tflite
 
 # Logs
 *.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Jupyter Notebook
+.ipynb_checkpoints/
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
